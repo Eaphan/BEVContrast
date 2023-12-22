@@ -1,7 +1,7 @@
 DATASET: 
     TRAIN: 'SemanticKITTIDataset'
     VAL: 'KITTIBEVDataset'
-    DATASET_ROOT: 'datasets/semantic_kitti'
+    DATASET_ROOT: 'data/semantic_kitti'
     # POINT_CLOUD_RANGE: [-70, -70, -3.0, 70, 70, 1.0]
     POINT_CLOUD_RANGE: [-51.2, -51.2, -3.0, 51.2, 51.2, 1.0]
     DATA_SPLIT: {
@@ -23,9 +23,9 @@ ENCODER:
     FEATURE_DIMENSION: 128
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 10
+    BATCH_SIZE_PER_GPU: 4
     NUM_EPOCHS: 50
-    NUM_WORKERS_PER_GPU: 4
+    NUM_WORKERS_PER_GPU: 1
 
     OPTIMIZER: AdamW
     LR: 0.001

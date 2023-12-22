@@ -49,35 +49,6 @@ class BEVTrainer(nn.Module):  # TODO rename
         if self.batch_first:
             batch['coordinates_in'] = batch['coordinates_in'][:, [1,2,3,0]]
             batch['coordinates_out'] = batch['coordinates_out'][:, [1,2,3,0]]
-        if self.loss == "contrast_efficient":
-            # alternative implementation of the loss, which is more memory efficient but slower
-            input_bev = self.collapse_to_bev(input_fmap, batch['coordinates_in'], batch["pc_min_in"].cuda(), self.range, self.voxel_size, self.bev_stride)
-            output_bev = self.collapse_to_bev(output_fmap, batch['coordinates_out'].clone(), batch["pc_min_out"].cuda(), self.range, self.voxel_size, self.bev_stride)
-            occupancy_out = torch.any(output_bev != 0, 1)
-
-            # recover R and T on the BEV plane
-            R = (batch["R_out"].transpose(1, 2) @ batch["R_in"]).to(torch.float32)
-            T = ((batch["T_in"] - batch["T_out"]).unsqueeze(1) @ batch["R_out"].to(torch.float32))
-            Rim = R.transpose(1, 2)
-            Tim = -T @ R
-            Rim = Rim[:, :2, :2]
-            Tim = Tim[:, 0, :2] / self.scale
-            P = torch.cat([Rim, Tim.unsqueeze(2)], axis=2)
-            grid = F.affine_grid(P.to(device, non_blocking=True), output_bev.shape, align_corners=False)
-
-            pred_bev = torch.cat([F.grid_sample(input_bev[b:b+1], grid[b][occupancy_out[b]].view(1,-1,1,2), mode='bilinear', padding_mode='zeros', align_corners=False).squeeze().squeeze() for b in range(len(occupancy_out))], 1).T
-            mask = pred_bev.sum(1) != 0
-            s = mask.sum().item()
-            output_bev = output_bev.permute(0, 2, 3, 1)[occupancy_out]
-            if s < 4096:
-                k = F.normalize(pred_bev[mask], p=2, dim=1)
-                q = F.normalize(output_bev[mask], p=2, dim=1)
-            else:
-                c = np.random.choice(s, 4096, replace=False)
-                k = F.normalize(pred_bev[mask][c], p=2, dim=1)
-                q = F.normalize(output_bev[mask][c], p=2, dim=1)
-            loss = self.criterion(k, q)
-            return loss, dict()
 
         if self.collapse:
             input_bev = self.collapse_to_bev(input_fmap, batch['coordinates_in'], batch["pc_min_in"].cuda(), self.range, self.voxel_size, self.bev_stride)
@@ -99,7 +70,7 @@ class BEVTrainer(nn.Module):  # TODO rename
 
         pred_bev = F.grid_sample(input_bev[0::self.input_frames], grid, mode='bilinear', padding_mode='zeros', align_corners=False)
         if self.collapse:
-            occupancy_pred = torch.any(output_bev != 0, 1)
+            occupancy_pred = torch.any(pred_bev != 0, 1)
         else:
             occupancy_pred = F.grid_sample(occupancy_in[0::self.input_frames].unsqueeze(1).to(torch.float32), grid, mode='bilinear', padding_mode='zeros', align_corners=False).squeeze(1).bool()
         mask = torch.logical_and(occupancy_out, occupancy_pred)

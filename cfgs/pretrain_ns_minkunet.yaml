@@ -1,7 +1,7 @@
 DATASET: 
     TRAIN: 'NuscenesDataset'
     VAL: 'KITTIBEVDataset'
-    DATASET_ROOT: 'datasets/nuscenes'
+    DATASET_ROOT: 'data/nuscenes'
     POINT_CLOUD_RANGE: [-51.2, -51.2, -3.0, 51.2, 51.2, 1.0]
     POINT_CLOUD_RANGE_VAL: [0, -40, -3, 70.4, 40, 1]
     DATA_SPLIT: {
@@ -18,14 +18,14 @@ DATASET:
 ENCODER:
     NAME: MinkUNet34
     COLLATE: collate_torchsparse
-    IN_CHANNELS: 1
+    IN_CHANNELS: 4
     OUT_CHANNELS: 128  # DO NOT CHANGE
     FEATURE_DIMENSION: 128
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 24
+    BATCH_SIZE_PER_GPU: 16
     NUM_EPOCHS: 50
-    NUM_WORKERS_PER_GPU: 4
+    NUM_WORKERS_PER_GPU: 1
 
     OPTIMIZER: AdamW
     LR: 0.001

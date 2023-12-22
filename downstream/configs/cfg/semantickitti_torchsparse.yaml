@@ -1,7 +1,7 @@
 
 name: SemanticKITTI
 dataset_name: SemanticKITTI
-dataset_root: ../datasets/semantic_kitti/
+dataset_root: ../data/semantic_kitti/
 desc: inI_predI
 save_dir: results/SemanticKITTI/
 

@@ -1,7 +1,7 @@
 
 name: NuScenes
 dataset_name: NuScenes
-dataset_root: data/nuscenes
+dataset_root: ../data/nuscenes
 desc: inI_predI
 save_dir: results/nuScenes/
 
@@ -11,7 +11,7 @@ val_split: verifying
 test_split: val
 
 # inputs
-inputs: ["intensities"] # ["x"] would be only ones
+inputs: ["pos", "intensities"] # ["x"] would be only ones
 
 # optimization
 training:
@@ -46,7 +46,7 @@ loss:
 # misc
 device: cuda
 num_device: 1
-threads: 4
+threads: 1
 interactive_log: false
 logging: INFO
 resume: null

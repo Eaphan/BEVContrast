@@ -96,7 +96,7 @@ def main(rank, world_size):
 
     ckpt_dir = config.SAVE_FOLDER / 'ckpt'
     if rank == 0:
-        ckpt_dir.mkdir(parents=True, exist_ok=config.DEBUG)
+        ckpt_dir.mkdir(parents=True, exist_ok=True)
     log_file = config.SAVE_FOLDER / 'log_train.txt'
     logger = make_logger(log_file, rank=rank)
 
@@ -222,14 +222,14 @@ def train(model, train_dataloader, optimizer, scheduler, config, rank, multigpu)
                         "optimizer": optimizer.state_dict(),
                         "iters": train_iter,
                         "config": config},
-                        config.SAVE_FOLDER / 'ckpt' / 'model.pt')
+                        config.SAVE_FOLDER / 'ckpt' / f'model_{cur_epoch+1}.pt')
                 else:
                     torch.save({
                         "state_dict": model.state_dict(),
                         "optimizer": optimizer.state_dict(),
                         "iters": train_iter,
                         "config": config},
-                        config.SAVE_FOLDER / 'ckpt' / 'model.pt')
+                        config.SAVE_FOLDER / 'ckpt' / f'model_{cur_epoch+1}.pt')
 
 
 if __name__ == '__main__':

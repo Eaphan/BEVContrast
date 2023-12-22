@@ -103,6 +103,10 @@ class LightningDownstreamTrainer(pl.LightningModule):
                     del ckpt['final.0.weight'], ckpt['final.0.bias']
                 elif 'classifier.0.bias' in ckpt:
                     del ckpt['classifier.0.weight'], ckpt['classifier.0.bias']
+            elif 'model_state' in ckpt:
+                ckpt = {k.replace("pc_encoder.backbone_3d.", "").replace("backbone_3d.", ""): v for k, v in ckpt['model_state'].items()}
+                ckpt = {k:v for k, v in ckpt.items() if k in self.net.state_dict()}
+                # del ckpt['stem.0.kernel']
             elif 'model' in ckpt:
                 ckpt = ckpt['model']
             for k in self.net.state_dict():
@@ -157,7 +161,9 @@ class LightningDownstreamTrainer(pl.LightningModule):
         return log_data
 
     def get_description_string(self, log_data):
-        desc = f"Epoch {self.current_epoch} |"
+        from datetime import datetime
+        current_time = datetime.now()
+        desc = f"Time: {current_time}, Epoch {self.current_epoch} |"
         for key, value in log_data.items():
             if "iou" in key:
                 desc += f"{key}:{value*100:.2f} |"
@@ -322,6 +328,9 @@ def main(config: DictConfig):
 
     model = LightningDownstreamTrainer(config)
     trainer.fit(model, train_loader, val_loader, ckpt_path=config["resume"])
+
+    model_path = os.path.join(savedir_root, 'final_model.ckpt')
+    trainer.save_checkpoint(model_path)
 
 
 if __name__ == "__main__":

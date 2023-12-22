@@ -1,7 +1,7 @@
 DATASET: 
     TRAIN: 'NuscenesDataset'
     VAL: null
-    DATASET_ROOT: 'datasets/nuscenes'
+    DATASET_ROOT: 'data/nuscenes'
     POINT_CLOUD_RANGE: [-51.2, -51.2, -3.0, 51.2, 51.2, 1.0]
     POINT_CLOUD_RANGE_VAL: null
     DATA_SPLIT: {
